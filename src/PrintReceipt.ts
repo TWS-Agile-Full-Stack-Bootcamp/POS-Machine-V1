@@ -24,10 +24,10 @@ const promote = (items: Item[]): Item[] => {
   return [<Item>{}]
 }
 
-const decodeTag = (tags: string[]): Item[] => {
+const decodeTags = (tags: string[]): Item[] => {
   return [<Item>{}]
 }
 
 export function printReceipt(tags: string[]): string {
-  return renderReceipt(promote(decodeTag(tags)))
+  return renderReceipt(promote(decodeTags(tags)))
 }
