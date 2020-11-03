@@ -1,4 +1,4 @@
-import {printReceipt} from '../src/PrintReceipt'
+import {decodeTags, printReceipt} from '../src/PrintReceipt'
 
 describe('printReceipt', () => {
   it('should print receipt with promotion when print receipt', () => {
@@ -23,5 +23,31 @@ Discounted prices：7.50(yuan)
 **********************`
 
     expect(printReceipt(tags)).toEqual(expectText)
+  })
+
+  it('should decode tags', () => {
+    const tags = [
+      'ITEM000001',
+      'ITEM000001',
+      'ITEM000001',
+      'ITEM000001',
+      'ITEM000001',
+      'ITEM000003-2.5',
+      'ITEM000005',
+      'ITEM000005-2',
+    ]
+
+    const expectItems = [{
+      barcode: 'ITEM000001',
+      quantity: 5,
+    }, {
+      barcode: 'ITEM000003',
+      quantity: 2.5,
+    }, {
+      barcode: 'ITEM000005',
+      quantity: 3
+    }]
+
+    expect(decodeTags(tags)).toEqual(expectItems)
   })
 })

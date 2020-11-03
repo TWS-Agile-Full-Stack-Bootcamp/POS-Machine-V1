@@ -5,8 +5,13 @@ interface Item {
   name: string
   unit: string
   price: number
-  count: number
+  quantity: number
   subtotal: number
+}
+
+interface Tag {
+  barcode: string
+  quantity: number
 }
 
 const renderItems = (items: Item[]): string => {
@@ -36,14 +41,22 @@ const promote = (items: Item[]): Item[] => {
   return [<Item>{}]
 }
 
-const decodeTags = (items: Item[]): Item[] => {
+const expandItemFromTag = (items: Tag[]): Item[] => {
   return [<Item>{}]
 }
 
-export const consolidate = (tags: string[]): Item[] => {
-  return [<Item>{}]
+export const decodeTags = (tags: string[]): Tag[] => {
+  const decodedTags: Tag[] = []
+  tags.forEach(tagString => {
+    const [barcode, quantityString] = tagString.split('-')
+    const quantity = quantityString ? parseFloat(quantityString) : 1
+    const found = decodedTags.find(tag => tag.barcode === barcode)
+    if (!found) decodedTags.push({barcode, quantity})
+    else found.quantity += quantity
+  })
+  return decodedTags
 }
 
 export function printReceipt(tags: string[]): string {
-  return renderReceipt(promote(decodeTags(consolidate(tags))))
+  return renderReceipt(promote(expandItemFromTag(decodeTags(tags))))
 }
