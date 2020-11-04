@@ -42,15 +42,7 @@ export function printReceipt(tags: string[]): string {
   //   total: 58.50,
   //   discountPrices: 7.50
   // }
-  const receiptItems: ReceiptItem[] = []
-  const receipt: Receipt = buildReceipt(receiptItems)
-
-  return formatReceipt(receipt)
-}
-
-function buildReceipt(receiptItems: ReceiptItem[]): Receipt {
-  const receipt: Receipt = {
-    items :
+  const receiptItems: ReceiptItem[] =
     [
       {
         barcode: 'ITEM000001',
@@ -79,10 +71,37 @@ function buildReceipt(receiptItems: ReceiptItem[]): Receipt {
         originalSubTotal: 13.50,
         promotedSubTotal: 9.00
       },
-    ],
-    total: 58.50,
-    discountPrices: 7.50
+    ]
+  const receipt: Receipt = buildReceipt(receiptItems)
+
+  return formatReceipt(receipt)
+}
+
+function buildReceipt(receiptItems: ReceiptItem[]): Receipt {
+  const promotions = loadPromotions()
+
+  receiptItems.map(item => {
+    item.originalSubTotal = item.quantity * item.unitPrice
+    promotions.find(promotion => {
+      promotion.barcodes.includes(item.barcode) ?
+        item.promotedSubTotal = item.originalSubTotal - Math.floor(item.quantity/3) * item.unitPrice : 0
+    })
+  })
+
+  const total: number = receiptItems.reduce((sum, item) => {
+    return sum + item.promotedSubTotal
+  }, 0)
+
+  const discountPrices: number = receiptItems.reduce((sum, item) => {
+    return sum + item.originalSubTotal - item.promotedSubTotal
+  }, 0)
+
+  const receipt: Receipt = {
+    items: receiptItems,
+    total: total,
+    discountPrices: discountPrices
   }
+
   return receipt
 }
 
