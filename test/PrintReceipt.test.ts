@@ -34,4 +34,19 @@ Discounted prices：7.50(yuan)
 
     expect(printReceipt(tags)).toEqual(expectText)
   })
+
+  it('should print receipt with out promotion when print receipt', () => {
+    const tags = [
+      'ITEM000003-2.5',
+    ]
+
+    const expectText = `***<store earning no money>Receipt ***
+Name：Litchi，Quantity：2.5 pounds，Unit：15.00(yuan)，Subtotal：37.50(yuan)
+----------------------
+Total：37.50(yuan)
+Discounted prices：0.00(yuan)
+**********************`
+
+    expect(printReceipt(tags)).toEqual(expectText)
+  })
 })
