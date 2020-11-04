@@ -9,20 +9,63 @@ export function printReceipt(tags: string[]): string {
   }
 
   const receipt: Receipt = {
-    items : [],
-    total: 0,
-    discountPrices: 0
+    items :
+    [
+      {
+        barcode: 'ITEM000001',
+        name: 'Sprite',
+        unit: 'bottle',
+        quantity: 5,
+        unitPrice: 3.00,
+        originalSubTotal: 15.00,
+        promotedSubTotal: 12.00
+      },
+      {
+        barcode: 'ITEM000003',
+        name: 'Litchi',
+        unit: 'pound',
+        quantity: 2.5,
+        unitPrice: 15.00,
+        originalSubTotal: 37.50,
+        promotedSubTotal: 37.50
+      },
+      {
+        barcode: 'ITEM000005',
+        name: 'Instant Noodles',
+        unit: 'bag',
+        quantity: 3,
+        unitPrice: 4.50,
+        originalSubTotal: 13.50,
+        promotedSubTotal: 9.00
+      },
+    ],
+    total: 58.50,
+    discountPrices: 7.50
   }
-  return render(receipt)
+
+  return formatReceipt(receipt)
 }
 
-function render(receipt: Receipt): string {
-  return `***<store earning no money>Receipt ***
-Name：Sprite，Quantity：5 bottles，Unit：3.00(yuan)，Subtotal：12.00(yuan)
-Name：Litchi，Quantity：2.5 pounds，Unit：15.00(yuan)，Subtotal：37.50(yuan)
-Name：Instant Noodles，Quantity：3 bags，Unit：4.50(yuan)，Subtotal：9.00(yuan)
-----------------------
-Total：58.50(yuan)
-Discounted prices：7.50(yuan)
+function formatReceipt(receipt: Receipt): string {
+  let printReceipt = '***<store earning no money>Receipt ***\n'
+
+  printReceipt += renderItems(receipt.items)
+
+  printReceipt += '\n----------------------\n'
+
+  printReceipt += renderTotal(receipt.total, receipt.discountPrices)
+
+  return printReceipt
+}
+
+function renderItems(items: ReceiptItem[]): string {
+  return items.map(item => {
+    return `Name：${item.name}，Quantity：${item.quantity} ${item.unit}s，Unit：${item.unitPrice.toFixed(2)}(yuan)，Subtotal：${item.promotedSubTotal.toFixed(2)}(yuan)`
+  }).join('\n').trim()
+}
+
+function renderTotal(total: number, discountPrices: number): string {
+  return `Total：${total.toFixed(2)}(yuan)
+Discounted prices：${discountPrices.toFixed(2)}(yuan)
 **********************`
 }

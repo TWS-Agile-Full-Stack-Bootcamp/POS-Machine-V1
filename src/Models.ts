@@ -7,6 +7,7 @@ export interface Receipt {
 export interface ReceiptItem{
     barcode: string,
     name: string,
+    unit: string,
     quantity: number,
     unitPrice: number,
     originalSubTotal: number,
