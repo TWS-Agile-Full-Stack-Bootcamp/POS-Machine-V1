@@ -8,40 +8,14 @@ export function printReceipt(tags: string[]): string {
 **********************`
   }
 
-  // const receipt: Receipt = {
-  //   items :
-  //   [
-  //     {
-  //       barcode: 'ITEM000001',
-  //       name: 'Sprite',
-  //       unit: 'bottle',
-  //       quantity: 5,
-  //       unitPrice: 3.00,
-  //       originalSubTotal: 15.00,
-  //       promotedSubTotal: 12.00
-  //     },
-  //     {
-  //       barcode: 'ITEM000003',
-  //       name: 'Litchi',
-  //       unit: 'pound',
-  //       quantity: 2.5,
-  //       unitPrice: 15.00,
-  //       originalSubTotal: 37.50,
-  //       promotedSubTotal: 37.50
-  //     },
-  //     {
-  //       barcode: 'ITEM000005',
-  //       name: 'Instant Noodles',
-  //       unit: 'bag',
-  //       quantity: 3,
-  //       unitPrice: 4.50,
-  //       originalSubTotal: 13.50,
-  //       promotedSubTotal: 9.00
-  //     },
-  //   ],
-  //   total: 58.50,
-  //   discountPrices: 7.50
-  // }
+  const receiptItems: ReceiptItem[] = parseToReceiptItems(tags)
+
+  const receipt: Receipt = buildReceipt(receiptItems)
+
+  return formatReceipt(receipt)
+}
+
+function parseToReceiptItems(tags: string[]): ReceiptItem[] {
   const receiptItems: ReceiptItem[] =
     [
       {
@@ -72,9 +46,8 @@ export function printReceipt(tags: string[]): string {
         promotedSubTotal: 9.00
       },
     ]
-  const receipt: Receipt = buildReceipt(receiptItems)
 
-  return formatReceipt(receipt)
+  return receiptItems
 }
 
 function buildReceipt(receiptItems: ReceiptItem[]): Receipt {
