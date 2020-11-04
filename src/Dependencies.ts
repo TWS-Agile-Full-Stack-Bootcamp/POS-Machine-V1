@@ -1,3 +1,5 @@
+import {Item} from './Item'
+
 export function loadAllItems() {
   return [
     {
@@ -47,7 +49,8 @@ export function loadPromotions() {
         'ITEM000000',
         'ITEM000001',
         'ITEM000005'
-      ]
+      ],
+      promote: (item: Item): number => item.price * (item.quantity - Math.floor(item.quantity/3))
     }
   ]
 }

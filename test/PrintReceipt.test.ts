@@ -1,4 +1,4 @@
-import {expandItemFromBarcode, decodeTags, printReceipt} from '../src/PrintReceipt'
+import {promote, expandItemFromBarcode, decodeTags, printReceipt} from '../src/PrintReceipt'
 
 describe('printReceipt', () => {
   it('should print receipt with promotion when print receipt', () => {
@@ -93,6 +93,60 @@ Discounted prices：7.50(yuan)
       unit: 'bag',
       price: 4.50,
       subtotal: 13.5
+    }]
+    expect(actual).toEqual(expected)
+  })
+
+  it('should calculate subtotal of items on sale', () => {
+    //given
+    const items = [{
+      barcode: 'ITEM000001',
+      quantity: 5,
+      name: 'Sprite',
+      unit: 'bottle',
+      price: 3.00,
+      subtotal: 15
+    }, {
+      barcode: 'ITEM000003',
+      quantity: 2.5,
+      name: 'Litchi',
+      unit: 'pound',
+      price: 15.00,
+      subtotal: 37.5
+    }, {
+      barcode: 'ITEM000005',
+      quantity: 3,
+      name: 'Instant Noodles',
+      unit: 'bag',
+      price: 4.50,
+      subtotal: 13.5
+    }]
+
+    //when
+    const actual = promote(items)
+
+    //then
+    const expected = [{
+      barcode: 'ITEM000001',
+      quantity: 5,
+      name: 'Sprite',
+      unit: 'bottle',
+      price: 3.00,
+      subtotal: 12
+    }, {
+      barcode: 'ITEM000003',
+      quantity: 2.5,
+      name: 'Litchi',
+      unit: 'pound',
+      price: 15.00,
+      subtotal: 37.5
+    }, {
+      barcode: 'ITEM000005',
+      quantity: 3,
+      name: 'Instant Noodles',
+      unit: 'bag',
+      price: 4.50,
+      subtotal: 9
     }]
     expect(actual).toEqual(expected)
   })

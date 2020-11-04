@@ -1,13 +1,5 @@
 import {loadAllItems, loadPromotions} from './Dependencies'
-
-interface Item {
-  barcode: string
-  name: string
-  unit: string
-  price: number
-  quantity: number
-  subtotal: number
-}
+import {Item} from './Item'
 
 interface SKU {
   barcode: string
@@ -19,6 +11,12 @@ interface SKU {
 interface Tag {
   barcode: string
   quantity: number
+}
+
+interface Promotion {
+  type: string
+  barcodes: string[]
+  promote: Function
 }
 
 const renderItems = (items: Item[]): string => {
@@ -44,8 +42,18 @@ Discounted prices：${calculateDiscount(items).toFixed(2)}(yuan)
 **********************`
 }
 
-const promote = (items: Item[]): Item[] => {
-  return [<Item>{}]
+export const promote = (items: Item[]): Item[] => {
+  const promotions: Promotion[] = loadPromotions()
+  const discounts = promotions.flatMap(({barcodes, promote}) => items
+    .filter(item => barcodes.includes(item.barcode))
+    .map(item => ({
+      barcode: item.barcode,
+      subtotal: promote(item)
+    })))
+  return items.map(item => {
+    const theDiscount = discounts.find(discount => discount.barcode === item.barcode)
+    return theDiscount ? Object.assign(item, {subtotal: theDiscount.subtotal}) : item
+  })
 }
 
 export const expandItemFromBarcode = (tags: Tag[]): Item[] => {
