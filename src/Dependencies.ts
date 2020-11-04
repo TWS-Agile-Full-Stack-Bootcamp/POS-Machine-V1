@@ -1,42 +1,17 @@
 export function loadAllItems() {
   return [
-    {
-      barcode: 'ITEM000000',
-      name: 'Coca-Cola',
-      unit: 'bottle',
-      price: 3.00
-    },
-    {
-      barcode: 'ITEM000001',
-      name: 'Sprite',
-      unit: 'bottle',
-      price: 3.00
-    },
-    {
-      barcode: 'ITEM000002',
-      name: 'Apple',
-      unit: 'pound',
-      price: 5.50
-    },
-    {
-      barcode: 'ITEM000003',
-      name: 'Litchi',
-      unit: 'pound',
-      price: 15.00
-    },
-    {
-      barcode: 'ITEM000004',
-      name: 'Battery',
-      unit: 'a',
-      price: 2.00
-    },
-    {
-      barcode: 'ITEM000005',
-      name: 'Instant Noodles',
-      unit: 'bag',
-      price: 4.50
-    }
+    new Item('ITEM000000', 'Coca-Cola', 'bottle', 3.00),
+    new Item('ITEM000001', 'Sprite', 'bottle', 3.00),
+    new Item('ITEM000002', 'Apple', 'pound', 5.50),
+    new Item('ITEM000003', 'Litchi', 'pound', 15.00),
+    new Item('ITEM000004', 'Battery', 'a', 2.00),
+    new Item('ITEM000005', 'Instant Noodles', 'bag', 4.50)
   ]
+}
+
+export class Item {
+  constructor(public  barcode: string, public  name: string, public  unit: string, public price: number) {
+  }
 }
 
 export function loadPromotions() {
