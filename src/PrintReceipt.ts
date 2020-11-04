@@ -25,13 +25,14 @@ Name：Litchi，Quantity：2.5 pounds，Unit：15.00(yuan)，Subtotal：37.50(yu
 Name：Instant Noodles，Quantity：3 bags，Unit：4.50(yuan)，Subtotal：9.00(yuan)`
 }
 
+const sum = (a: number, b: number): number => a + b
+
 const calculateTotal = (items: Item[]): number => {
-  const sum = (a: number, b: number): number => a + b
   return items.map(item => item.subtotal).reduce(sum, 0)
 }
 
 const calculateDiscount = (items: Item[]): number => {
-  return 7.50
+  return items.map(item => item.price * item.quantity - item.subtotal).reduce(sum, 0)
 }
 
 const renderReceipt = (items: Item[]): string => {
