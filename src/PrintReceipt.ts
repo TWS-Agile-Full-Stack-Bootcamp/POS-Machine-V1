@@ -16,9 +16,16 @@ export function printReceipt(tags: string[]): string {
 }
 
 function parseToReceiptItems(tags: string[]): ReceiptItem[] {
-  const allItems: Item[] = loadAllItems()
 
   const quantitiedBarcodes: QuantitiedBarcode[] = parseTags(tags)
+
+  const receiptItems: ReceiptItem[] = parseBarcodesToReceiptItems(quantitiedBarcodes)
+
+  return receiptItems
+}
+
+function parseBarcodesToReceiptItems(quantitiedBarcodes: QuantitiedBarcode[]): ReceiptItem[] {
+  const allItems: Item[] = loadAllItems()
 
   const receiptItems: ReceiptItem[] = quantitiedBarcodes.map(barcode => {
     let receiptItem : ReceiptItem = {
@@ -48,24 +55,11 @@ function parseToReceiptItems(tags: string[]): ReceiptItem[] {
 
   return receiptItems
 }
-
 function parseTags(tags: string[]): QuantitiedBarcode[] {
   const quantitiedBarcodes: QuantitiedBarcode[] = []
 
   tags.map(tag => {
-    let quantitiedBarcode: QuantitiedBarcode
-    if(tag.includes('-')) {
-      const splittedTag: string[] = tag.split('-')
-      quantitiedBarcode = {
-        barcode: splittedTag[0],
-        quantity: splittedTag[1].includes('.') ? parseFloat(splittedTag[1]) :parseInt(splittedTag[1])
-      }
-    } else {
-      quantitiedBarcode = {
-        barcode: tag,
-        quantity: 1
-      }
-    }
+    const quantitiedBarcode: QuantitiedBarcode = parseTag(tag)
 
     quantitiedBarcodes.some(barcdoe => barcdoe.barcode === quantitiedBarcode.barcode) ? quantitiedBarcodes.find(barcode => {
       if(barcode.barcode === quantitiedBarcode.barcode) {
@@ -75,6 +69,21 @@ function parseTags(tags: string[]): QuantitiedBarcode[] {
   })
 
   return quantitiedBarcodes
+}
+
+function parseTag(tag: string): QuantitiedBarcode {
+  if(tag.includes('-')) {
+    const splittedTag: string[] = tag.split('-')
+    return {
+      barcode: splittedTag[0],
+      quantity: splittedTag[1].includes('.') ? parseFloat(splittedTag[1]) :parseInt(splittedTag[1])
+    }
+  } else {
+    return {
+      barcode: tag,
+      quantity: 1
+    }
+  }
 }
 
 function buildReceipt(receiptItems: ReceiptItem[]): Receipt {
