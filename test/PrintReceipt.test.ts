@@ -24,4 +24,14 @@ Discounted prices：7.50(yuan)
 
     expect(printReceipt(tags)).toEqual(expectText)
   })
+
+  it('should print empty receipt when print receipt given empty tags', () => {
+    const tags : string[] = []
+
+    const expectText = `***<store earning no money>Receipt ***
+----------------------
+**********************`
+
+    expect(printReceipt(tags)).toEqual(expectText)
+  })
 })
