@@ -1,6 +1,6 @@
-import { Promotion } from './Models'
+import { Promotion, Item } from './Models'
 
-export function loadAllItems() {
+export function loadAllItems(): Item[] {
   return [
     {
       barcode: 'ITEM000000',

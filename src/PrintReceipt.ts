@@ -1,5 +1,5 @@
 import {loadAllItems, loadPromotions} from './Dependencies'
-import {Receipt, ReceiptItem, Promotion} from './Models'
+import {Receipt, ReceiptItem, Promotion, Item, QuantitiedBarcode} from './Models'
 
 export function printReceipt(tags: string[]): string {
   if(tags.length === 0) {
@@ -16,36 +16,57 @@ export function printReceipt(tags: string[]): string {
 }
 
 function parseToReceiptItems(tags: string[]): ReceiptItem[] {
-  const receiptItems: ReceiptItem[] =
-    [
-      {
-        barcode: 'ITEM000001',
-        name: 'Sprite',
-        unit: 'bottle',
-        quantity: 5,
-        unitPrice: 3.00,
-        originalSubTotal: 15.00,
-        promotedSubTotal: 12.00
-      },
-      {
-        barcode: 'ITEM000003',
-        name: 'Litchi',
-        unit: 'pound',
-        quantity: 2.5,
-        unitPrice: 15.00,
-        originalSubTotal: 37.50,
-        promotedSubTotal: 37.50
-      },
-      {
-        barcode: 'ITEM000005',
-        name: 'Instant Noodles',
-        unit: 'bag',
-        quantity: 3,
-        unitPrice: 4.50,
-        originalSubTotal: 13.50,
-        promotedSubTotal: 9.00
-      },
-    ]
+  const allItems: Item[] = loadAllItems()
+
+  const quantitiedBarcodes: QuantitiedBarcode[] = []
+
+  tags.map(tag => {
+    let quantitiedBarcode: QuantitiedBarcode
+    if(tag.includes('-')) {
+      const splittedTag: string[] = tag.split('-')
+      quantitiedBarcode = {
+        barcode: splittedTag[0],
+        quantity: splittedTag[1].includes('.') ? parseFloat(splittedTag[1]) :parseInt(splittedTag[1])
+      }
+    } else {
+      quantitiedBarcode = {
+        barcode: tag,
+        quantity: 1
+      }
+    }
+
+    quantitiedBarcodes.some(barcdoe => barcdoe.barcode === quantitiedBarcode.barcode) ? quantitiedBarcodes.find(barcode => {
+      if(barcode.barcode === quantitiedBarcode.barcode) {
+        barcode.quantity += quantitiedBarcode.quantity
+      }
+    }) : quantitiedBarcodes.push(quantitiedBarcode)
+  })
+
+  const receiptItems: ReceiptItem[] = quantitiedBarcodes.map(barcode => {
+    let receiptItem : ReceiptItem = {
+      barcode: barcode.barcode,
+      name: '',
+      unit: '',
+      quantity: barcode.quantity,
+      unitPrice: 0,
+      originalSubTotal: 0,
+      promotedSubTotal: 0
+    }
+    allItems.find(item => {
+      if(item.barcode === barcode.barcode ) {
+        receiptItem =  {
+          barcode: barcode.barcode,
+          name: item.name,
+          unit: item.unit,
+          quantity: barcode.quantity,
+          unitPrice: item.price,
+          originalSubTotal: 0,
+          promotedSubTotal: 0
+        }
+      }
+    })
+    return receiptItem
+  })
 
   return receiptItems
 }
@@ -90,8 +111,9 @@ function calculateSubTotals(receiptItems: ReceiptItem[], promotions: Promotion[]
   receiptItems.map(item => {
     item.originalSubTotal = item.quantity * item.unitPrice
     promotions.find(promotion => {
-      promotion.barcodes.includes(item.barcode) ?
-        item.promotedSubTotal = item.originalSubTotal - Math.floor(item.quantity/3) * item.unitPrice : 0
+      promotion.barcodes.includes(item.barcode)
+        ? item.promotedSubTotal = item.originalSubTotal - Math.floor(item.quantity/3) * item.unitPrice
+        : item.promotedSubTotal = item.originalSubTotal
     })
   })
   return receiptItems

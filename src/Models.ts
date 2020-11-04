@@ -18,3 +18,15 @@ export interface Promotion{
     type: string,
     barcodes: string[]
 }
+
+export interface Item{
+    barcode: string,
+    name: string,
+    unit: string,
+    price: number
+}
+
+export interface QuantitiedBarcode{
+    barcode: string,
+    quantity: number
+}
