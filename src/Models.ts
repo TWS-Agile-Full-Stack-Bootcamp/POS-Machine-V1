@@ -13,3 +13,8 @@ export interface ReceiptItem{
     originalSubTotal: number,
     promotedSubTotal: number
 }
+
+export interface Promotion{
+    type: string,
+    barcodes: string[]
+}

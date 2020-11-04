@@ -1,3 +1,5 @@
+import { Promotion } from './Models'
+
 export function loadAllItems() {
   return [
     {
@@ -39,7 +41,7 @@ export function loadAllItems() {
   ]
 }
 
-export function loadPromotions() {
+export function loadPromotions(): Promotion[] {
   return [
     {
       type: 'BUY_TWO_GET_ONE_FREE',

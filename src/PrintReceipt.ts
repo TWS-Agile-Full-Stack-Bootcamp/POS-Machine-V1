@@ -1,5 +1,5 @@
 import {loadAllItems, loadPromotions} from './Dependencies'
-import {Receipt, ReceiptItem} from './Models'
+import {Receipt, ReceiptItem, Promotion} from './Models'
 
 export function printReceipt(tags: string[]): string {
   if(tags.length === 0) {
@@ -80,24 +80,20 @@ export function printReceipt(tags: string[]): string {
 function buildReceipt(receiptItems: ReceiptItem[]): Receipt {
   const promotions = loadPromotions()
 
-  receiptItems.map(item => {
-    item.originalSubTotal = item.quantity * item.unitPrice
-    promotions.find(promotion => {
-      promotion.barcodes.includes(item.barcode) ?
-        item.promotedSubTotal = item.originalSubTotal - Math.floor(item.quantity/3) * item.unitPrice : 0
-    })
-  })
+  const receipt: Receipt = generateReceipt(receiptItems, promotions)
 
-  const total: number = receiptItems.reduce((sum, item) => {
-    return sum + item.promotedSubTotal
-  }, 0)
+  return receipt
+}
 
-  const discountPrices: number = receiptItems.reduce((sum, item) => {
-    return sum + item.originalSubTotal - item.promotedSubTotal
-  }, 0)
+function generateReceipt(receiptItems: ReceiptItem[], promotions: Promotion[]) {
+  const items: ReceiptItem[] = calculateSubTotals(receiptItems, promotions)
+
+  const total: number = calculateTotal(items)
+
+  const discountPrices: number = calculateDiscountPrices(items)
 
   const receipt: Receipt = {
-    items: receiptItems,
+    items: items,
     total: total,
     discountPrices: discountPrices
   }
@@ -105,6 +101,28 @@ function buildReceipt(receiptItems: ReceiptItem[]): Receipt {
   return receipt
 }
 
+function calculateDiscountPrices(receiptItems: ReceiptItem[]) {
+  return receiptItems.reduce((sum, item) => {
+    return sum + item.originalSubTotal - item.promotedSubTotal
+  }, 0)
+}
+
+function calculateTotal(receiptItems: ReceiptItem[]) {
+  return receiptItems.reduce((sum, item) => {
+    return sum + item.promotedSubTotal
+  }, 0)
+}
+
+function calculateSubTotals(receiptItems: ReceiptItem[], promotions: Promotion[]): ReceiptItem[]{
+  receiptItems.map(item => {
+    item.originalSubTotal = item.quantity * item.unitPrice
+    promotions.find(promotion => {
+      promotion.barcodes.includes(item.barcode) ?
+        item.promotedSubTotal = item.originalSubTotal - Math.floor(item.quantity/3) * item.unitPrice : 0
+    })
+  })
+  return receiptItems
+}
 function formatReceipt(receipt: Receipt): string {
   let printReceipt = '***<store earning no money>Receipt ***\n'
 
