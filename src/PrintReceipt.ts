@@ -19,10 +19,12 @@ interface Promotion {
   promote: Function
 }
 
+const renderUnit = (item: Item): string => item.unit + ((item.quantity > 1) ? 's' : '')
+
 const renderItems = (items: Item[]): string => {
-  return `Name：Sprite，Quantity：5 bottles，Unit：3.00(yuan)，Subtotal：12.00(yuan)
-Name：Litchi，Quantity：2.5 pounds，Unit：15.00(yuan)，Subtotal：37.50(yuan)
-Name：Instant Noodles，Quantity：3 bags，Unit：4.50(yuan)，Subtotal：9.00(yuan)`
+  return items
+    .map(item => `Name：${item.name}，Quantity：${item.quantity} ${renderUnit(item)}，Unit：${item.price.toFixed(2)}(yuan)，Subtotal：${item.subtotal.toFixed(2)}(yuan)`)
+    .join('\n')
 }
 
 const sum = (a: number, b: number): number => a + b
