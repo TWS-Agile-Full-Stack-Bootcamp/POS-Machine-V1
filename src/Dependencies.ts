@@ -1,4 +1,6 @@
-export function loadAllItems() {
+import { Promotion, Item } from './Models'
+
+export function loadAllItems(): Item[] {
   return [
     {
       barcode: 'ITEM000000',
@@ -39,7 +41,7 @@ export function loadAllItems() {
   ]
 }
 
-export function loadPromotions() {
+export function loadPromotions(): Promotion[] {
   return [
     {
       type: 'BUY_TWO_GET_ONE_FREE',
