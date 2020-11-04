@@ -48,6 +48,8 @@ Discounted prices：${renderFloat(calculateDiscount(items))}(yuan)
 **********************`
 }
 
+const byBarcodeOf = (target: {barcode: string}) => (({barcode}: {barcode: string}) => barcode === target.barcode)
+
 export const promote = (items: Item[]): Item[] => {
   const promotions: Promotion[] = loadPromotions()
   const discounts = promotions.flatMap(({barcodes, promote}) => items
@@ -57,7 +59,7 @@ export const promote = (items: Item[]): Item[] => {
       subtotal: promote(item)
     })))
   return items.map(item => {
-    const theDiscount = discounts.find(discount => discount.barcode === item.barcode)
+    const theDiscount = discounts.find(byBarcodeOf(item))
     return theDiscount ? Object.assign(item, {subtotal: theDiscount.subtotal}) : item
   })
 }
@@ -65,7 +67,7 @@ export const promote = (items: Item[]): Item[] => {
 export const expandItemFromBarcode = (tags: Tag[]): Item[] => {
   const skus: SKU[] = loadAllItems()
   return tags.map(tag => {
-    const theSku = skus.find(sku => sku.barcode === tag.barcode)
+    const theSku = skus.find(byBarcodeOf(tag))
     return {
       barcode: theSku!.barcode,
       name: theSku!.name,
@@ -82,7 +84,7 @@ export const decodeTags = (tags: string[]): Tag[] => {
   tags.forEach(tagString => {
     const [barcode, quantityString] = tagString.split('-')
     const quantity = quantityString ? parseFloat(quantityString) : 1
-    const found = decodedTags.find(tag => tag.barcode === barcode)
+    const found = decodedTags.find(byBarcodeOf({barcode}))
     if (!found) decodedTags.push({barcode, quantity})
     else found.quantity += quantity
   })
