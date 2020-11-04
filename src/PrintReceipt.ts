@@ -78,10 +78,7 @@ Discounted prices：${this.renderFloat(this.calculateDiscount(items))}(yuan)
     return tags.map(tag => {
       const theSku = skus.find(this.byBarcodeOf(tag))
       return {
-        barcode: theSku!.barcode,
-        name: theSku!.name,
-        unit: theSku!.unit,
-        price: theSku!.price,
+        ...theSku!,
         quantity: tag.quantity,
         subtotal: tag.quantity * theSku!.price
       }
