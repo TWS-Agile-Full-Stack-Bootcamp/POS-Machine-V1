@@ -26,7 +26,8 @@ Name：Instant Noodles，Quantity：3 bags，Unit：4.50(yuan)，Subtotal：9.00
 }
 
 const calculateTotal = (items: Item[]): number => {
-  return 58.50
+  const sum = (a: number, b: number): number => a + b
+  return items.map(item => item.subtotal).reduce(sum, 0)
 }
 
 const calculateDiscount = (items: Item[]): number => {
