@@ -20,27 +20,33 @@ interface Promotion {
 }
 
 export class ReceiptPrinter {
-  renderUnit = (item: Item): string => item.unit + ((item.quantity > 1) ? 's' : '')
+  private renderUnit(item: Item): string {
+    return item.unit + ((item.quantity > 1) ? 's' : '')
+  }
 
-  renderFloat = (target: number): string => target.toFixed(2)
+  private renderFloat(target: number): string {
+    return target.toFixed(2)
+  }
 
-  renderItems = (items: Item[]): string => {
+  private renderItems(items: Item[]): string {
     return items
       .map(item => `Name：${item.name}，Quantity：${item.quantity} ${this.renderUnit(item)}，Unit：${this.renderFloat(item.price)}(yuan)，Subtotal：${this.renderFloat(item.subtotal)}(yuan)`)
       .join('\n')
   }
 
-  sum = (a: number, b: number): number => a + b
-
-  calculateTotal = (items: Item[]): number => {
-    return items.map(item => item.subtotal).reduce(this.sum, 0)
+  private sum(a: number, b: number): number {
+    return a + b
   }
 
-  calculateDiscount = (items: Item[]): number => {
-    return items.map(item => item.price * item.quantity - item.subtotal).reduce(this.sum, 0)
+  private calculateTotal(items: Item[]): number {
+    return items.map(item => item.subtotal).reduce(this.sum.bind(this), 0)
   }
 
-  renderReceipt = (items: Item[]): string => {
+  private calculateDiscount(items: Item[]): number {
+    return items.map(item => item.price * item.quantity - item.subtotal).reduce(this.sum.bind(this), 0)
+  }
+
+  private renderReceipt(items: Item[]): string {
     return `***<store earning no money>Receipt ***
 ${this.renderItems(items)}
 ----------------------
@@ -49,9 +55,11 @@ Discounted prices：${this.renderFloat(this.calculateDiscount(items))}(yuan)
 **********************`
   }
 
-  byBarcodeOf = (target: {barcode: string}) => (({barcode}: {barcode: string}) => barcode === target.barcode)
+  private byBarcodeOf(target: { barcode: string }) {
+    return ({barcode}: { barcode: string }) => barcode === target.barcode
+  }
 
-  promote (items: Item[]): Item[] {
+  private promote (items: Item[]): Item[] {
     const promotions: Promotion[] = loadPromotions()
     const discounts = promotions.flatMap(({barcodes, promote}) => items
       .filter(item => barcodes.includes(item.barcode))
@@ -65,7 +73,7 @@ Discounted prices：${this.renderFloat(this.calculateDiscount(items))}(yuan)
     })
   }
 
-  expandItemFromBarcode (tags: Tag[]): Item[] {
+  private expandItemFromBarcode(tags: Tag[]): Item[] {
     const skus: SKU[] = loadAllItems()
     return tags.map(tag => {
       const theSku = skus.find(this.byBarcodeOf(tag))
@@ -80,7 +88,7 @@ Discounted prices：${this.renderFloat(this.calculateDiscount(items))}(yuan)
     })
   }
 
-  decodeTags (tags: string[]): Tag[] {
+  private decodeTags = (tags: string[]): Tag[] => {
     const decodedTags: Tag[] = []
     tags.forEach(tagString => {
       const [barcode, quantityString] = tagString.split('-')
@@ -92,7 +100,7 @@ Discounted prices：${this.renderFloat(this.calculateDiscount(items))}(yuan)
     return decodedTags
   }
 
-  public printReceipt (tags: string[]): string {
+  public printReceipt(tags: string[]): string {
     return this.renderReceipt(this.promote(this.expandItemFromBarcode(this.decodeTags(tags))))
   }
 }
