@@ -34,16 +34,14 @@ export class ReceiptPrinter {
       .join('\n')
   }
 
-  private sum(a: number, b: number): number {
-    return a + b
-  }
+  private sum = (a: number, b: number): number => a + b
 
   private calculateTotal(items: Item[]): number {
-    return items.map(item => item.subtotal).reduce(this.sum.bind(this), 0)
+    return items.map(item => item.subtotal).reduce(this.sum, 0)
   }
 
   private calculateDiscount(items: Item[]): number {
-    return items.map(item => item.price * item.quantity - item.subtotal).reduce(this.sum.bind(this), 0)
+    return items.map(item => item.price * item.quantity - item.subtotal).reduce(this.sum, 0)
   }
 
   private renderReceipt(items: Item[]): string {
