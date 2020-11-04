@@ -28,7 +28,7 @@ function parseBarcodesToReceiptItems(quantitiedBarcodes: QuantitiedBarcode[]): R
   const allItems: Item[] = loadAllItems()
 
   const receiptItems: ReceiptItem[] = quantitiedBarcodes.map(barcode => {
-    let receiptItem : ReceiptItem = {
+    const receiptItem : ReceiptItem = {
       barcode: barcode.barcode,
       name: '',
       unit: '',
@@ -39,15 +39,9 @@ function parseBarcodesToReceiptItems(quantitiedBarcodes: QuantitiedBarcode[]): R
     }
     allItems.find(item => {
       if(item.barcode === barcode.barcode ) {
-        receiptItem =  {
-          barcode: barcode.barcode,
-          name: item.name,
-          unit: item.unit,
-          quantity: barcode.quantity,
-          unitPrice: item.price,
-          originalSubTotal: 0,
-          promotedSubTotal: 0
-        }
+        receiptItem.name = item.name
+        receiptItem.unit = item.unit
+        receiptItem.unitPrice =  item.price
       }
     })
     return receiptItem
