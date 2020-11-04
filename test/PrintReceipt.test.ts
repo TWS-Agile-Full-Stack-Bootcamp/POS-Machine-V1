@@ -1,4 +1,4 @@
-import {decodeTags, printReceipt} from '../src/PrintReceipt'
+import {expandItemFromBarcode, decodeTags, printReceipt} from '../src/PrintReceipt'
 
 describe('printReceipt', () => {
   it('should print receipt with promotion when print receipt', () => {
@@ -26,6 +26,7 @@ Discounted prices：7.50(yuan)
   })
 
   it('should decode tags', () => {
+    //given
     const tags = [
       'ITEM000001',
       'ITEM000001',
@@ -37,7 +38,26 @@ Discounted prices：7.50(yuan)
       'ITEM000005-2',
     ]
 
-    const expectItems = [{
+    //when
+    const actual = decodeTags(tags)
+
+    //then
+    const expected = [{
+      barcode: 'ITEM000001',
+      quantity: 5,
+    }, {
+      barcode: 'ITEM000003',
+      quantity: 2.5,
+    }, {
+      barcode: 'ITEM000005',
+      quantity: 3
+    }]
+    expect(actual).toEqual(expected)
+  })
+
+  it('should expand items from barcodes', () => {
+    //given
+    const items = [{
       barcode: 'ITEM000001',
       quantity: 5,
     }, {
@@ -48,6 +68,32 @@ Discounted prices：7.50(yuan)
       quantity: 3
     }]
 
-    expect(decodeTags(tags)).toEqual(expectItems)
+    //when
+    const actual = expandItemFromBarcode(items)
+
+    //then
+    const expected = [{
+      barcode: 'ITEM000001',
+      quantity: 5,
+      name: 'Sprite',
+      unit: 'bottle',
+      price: 3.00,
+      subtotal: 15
+    }, {
+      barcode: 'ITEM000003',
+      quantity: 2.5,
+      name: 'Litchi',
+      unit: 'pound',
+      price: 15.00,
+      subtotal: 37.5
+    }, {
+      barcode: 'ITEM000005',
+      quantity: 3,
+      name: 'Instant Noodles',
+      unit: 'bag',
+      price: 4.50,
+      subtotal: 13.5
+    }]
+    expect(actual).toEqual(expected)
   })
 })

@@ -9,6 +9,13 @@ interface Item {
   subtotal: number
 }
 
+interface SKU {
+  barcode: string
+  name: string
+  unit: string
+  price: number
+}
+
 interface Tag {
   barcode: string
   quantity: number
@@ -41,8 +48,19 @@ const promote = (items: Item[]): Item[] => {
   return [<Item>{}]
 }
 
-const expandItemFromTag = (items: Tag[]): Item[] => {
-  return [<Item>{}]
+export const expandItemFromBarcode = (tags: Tag[]): Item[] => {
+  const skus: SKU[] = loadAllItems()
+  return tags.map(tag => {
+    const theSku = skus.find(sku => sku.barcode === tag.barcode)
+    return {
+      barcode: theSku!.barcode,
+      name: theSku!.name,
+      unit: theSku!.unit,
+      price: theSku!.price,
+      quantity: tag.quantity,
+      subtotal: tag.quantity * theSku!.price
+    }
+  })
 }
 
 export const decodeTags = (tags: string[]): Tag[] => {
@@ -58,5 +76,5 @@ export const decodeTags = (tags: string[]): Tag[] => {
 }
 
 export function printReceipt(tags: string[]): string {
-  return renderReceipt(promote(expandItemFromTag(decodeTags(tags))))
+  return renderReceipt(promote(expandItemFromBarcode(decodeTags(tags))))
 }
