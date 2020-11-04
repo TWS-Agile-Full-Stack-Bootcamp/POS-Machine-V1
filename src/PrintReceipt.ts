@@ -18,29 +18,7 @@ export function printReceipt(tags: string[]): string {
 function parseToReceiptItems(tags: string[]): ReceiptItem[] {
   const allItems: Item[] = loadAllItems()
 
-  const quantitiedBarcodes: QuantitiedBarcode[] = []
-
-  tags.map(tag => {
-    let quantitiedBarcode: QuantitiedBarcode
-    if(tag.includes('-')) {
-      const splittedTag: string[] = tag.split('-')
-      quantitiedBarcode = {
-        barcode: splittedTag[0],
-        quantity: splittedTag[1].includes('.') ? parseFloat(splittedTag[1]) :parseInt(splittedTag[1])
-      }
-    } else {
-      quantitiedBarcode = {
-        barcode: tag,
-        quantity: 1
-      }
-    }
-
-    quantitiedBarcodes.some(barcdoe => barcdoe.barcode === quantitiedBarcode.barcode) ? quantitiedBarcodes.find(barcode => {
-      if(barcode.barcode === quantitiedBarcode.barcode) {
-        barcode.quantity += quantitiedBarcode.quantity
-      }
-    }) : quantitiedBarcodes.push(quantitiedBarcode)
-  })
+  const quantitiedBarcodes: QuantitiedBarcode[] = parseTags(tags)
 
   const receiptItems: ReceiptItem[] = quantitiedBarcodes.map(barcode => {
     let receiptItem : ReceiptItem = {
@@ -69,6 +47,34 @@ function parseToReceiptItems(tags: string[]): ReceiptItem[] {
   })
 
   return receiptItems
+}
+
+function parseTags(tags: string[]): QuantitiedBarcode[] {
+  const quantitiedBarcodes: QuantitiedBarcode[] = []
+
+  tags.map(tag => {
+    let quantitiedBarcode: QuantitiedBarcode
+    if(tag.includes('-')) {
+      const splittedTag: string[] = tag.split('-')
+      quantitiedBarcode = {
+        barcode: splittedTag[0],
+        quantity: splittedTag[1].includes('.') ? parseFloat(splittedTag[1]) :parseInt(splittedTag[1])
+      }
+    } else {
+      quantitiedBarcode = {
+        barcode: tag,
+        quantity: 1
+      }
+    }
+
+    quantitiedBarcodes.some(barcdoe => barcdoe.barcode === quantitiedBarcode.barcode) ? quantitiedBarcodes.find(barcode => {
+      if(barcode.barcode === quantitiedBarcode.barcode) {
+        barcode.quantity += quantitiedBarcode.quantity
+      }
+    }) : quantitiedBarcodes.push(quantitiedBarcode)
+  })
+
+  return quantitiedBarcodes
 }
 
 function buildReceipt(receiptItems: ReceiptItem[]): Receipt {
