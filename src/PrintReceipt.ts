@@ -21,9 +21,11 @@ interface Promotion {
 
 const renderUnit = (item: Item): string => item.unit + ((item.quantity > 1) ? 's' : '')
 
+const renderFloat = (target: number): string => target.toFixed(2)
+
 const renderItems = (items: Item[]): string => {
   return items
-    .map(item => `Name：${item.name}，Quantity：${item.quantity} ${renderUnit(item)}，Unit：${item.price.toFixed(2)}(yuan)，Subtotal：${item.subtotal.toFixed(2)}(yuan)`)
+    .map(item => `Name：${item.name}，Quantity：${item.quantity} ${renderUnit(item)}，Unit：${renderFloat(item.price)}(yuan)，Subtotal：${renderFloat(item.subtotal)}(yuan)`)
     .join('\n')
 }
 
@@ -41,8 +43,8 @@ const renderReceipt = (items: Item[]): string => {
   return `***<store earning no money>Receipt ***
 ${renderItems(items)}
 ----------------------
-Total：${calculateTotal(items).toFixed(2)}(yuan)
-Discounted prices：${calculateDiscount(items).toFixed(2)}(yuan)
+Total：${renderFloat(calculateTotal(items))}(yuan)
+Discounted prices：${renderFloat(calculateDiscount(items))}(yuan)
 **********************`
 }
 
