@@ -1,4 +1,4 @@
-import {printReceipt} from '../src/PrintReceipt'
+import {ReceiptPrinter} from '../src/PrintReceipt'
 
 describe('printReceipt', () => {
   it('should print receipt with promotion when print receipt', () => {
@@ -22,6 +22,6 @@ Total：58.50(yuan)
 Discounted prices：7.50(yuan)
 **********************`
 
-    expect(printReceipt(tags)).toEqual(expectText)
+    expect(new ReceiptPrinter().printReceipt(tags)).toEqual(expectText)
   })
 })

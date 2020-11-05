@@ -1,12 +1,101 @@
 import {loadAllItems, loadPromotions} from './Dependencies'
+import {Item} from './Item'
 
-export function printReceipt(tags: string[]): string {
-  return `***<store earning no money>Receipt ***
-Name：Sprite，Quantity：5 bottles，Unit：3.00(yuan)，Subtotal：12.00(yuan)
-Name：Litchi，Quantity：2.5 pounds，Unit：15.00(yuan)，Subtotal：37.50(yuan)
-Name：Instant Noodles，Quantity：3 bags，Unit：4.50(yuan)，Subtotal：9.00(yuan)
+interface SKU {
+  barcode: string
+  name: string
+  unit: string
+  price: number
+}
+
+interface Tag {
+  barcode: string
+  quantity: number
+}
+
+interface Promotion {
+  type: string
+  barcodes: string[]
+  promote: Function
+}
+
+export class ReceiptPrinter {
+  private renderUnit(item: Item): string {
+    return item.unit + ((item.quantity > 1) ? 's' : '')
+  }
+
+  private renderFloat(target: number): string {
+    return target.toFixed(2)
+  }
+
+  private renderItems(items: Item[]): string {
+    return items
+      .map(item => `Name：${item.name}，Quantity：${item.quantity} ${this.renderUnit(item)}，Unit：${this.renderFloat(item.price)}(yuan)，Subtotal：${this.renderFloat(item.subtotal)}(yuan)`)
+      .join('\n')
+  }
+
+  private sum = (a: number, b: number): number => a + b
+
+  private calculateTotal(items: Item[]): number {
+    return items.map(item => item.subtotal).reduce(this.sum, 0)
+  }
+
+  private calculateDiscount(items: Item[]): number {
+    return items.map(item => item.price * item.quantity - item.subtotal).reduce(this.sum, 0)
+  }
+
+  private renderReceipt(items: Item[]): string {
+    return `***<store earning no money>Receipt ***
+${this.renderItems(items)}
 ----------------------
-Total：58.50(yuan)
-Discounted prices：7.50(yuan)
+Total：${this.renderFloat(this.calculateTotal(items))}(yuan)
+Discounted prices：${this.renderFloat(this.calculateDiscount(items))}(yuan)
 **********************`
+  }
+
+  private byBarcodeOf(target: { barcode: string }) {
+    return ({barcode}: { barcode: string }) => barcode === target.barcode
+  }
+
+  private promote (items: Item[]): Item[] {
+    const promotions: Promotion[] = loadPromotions()
+    const discounts = promotions.flatMap(({barcodes, promote}) => items
+      .filter(item => barcodes.includes(item.barcode))
+      .map(item => ({
+        barcode: item.barcode,
+        subtotal: promote(item)
+      })))
+    return items.map(item => {
+      const theDiscount = discounts.find(this.byBarcodeOf(item))
+      return theDiscount ? Object.assign(item, {subtotal: theDiscount.subtotal}) : item
+    })
+  }
+
+  private expandItemFromBarcode(tags: Tag[]): Item[] {
+    const skus: SKU[] = loadAllItems()
+    return tags.map(tag => {
+      const theSku = skus.find(this.byBarcodeOf(tag))
+      return {
+        ...theSku!,
+        quantity: tag.quantity,
+        subtotal: tag.quantity * theSku!.price
+      }
+    })
+  }
+
+  private decodeTags = (tags: string[]): Tag[] => {
+    const decodedTags: Tag[] = []
+    tags.forEach(tagString => {
+      const [barcode, quantityString] = tagString.split('-')
+      const quantity = quantityString ? parseFloat(quantityString) : 1
+      const found = decodedTags.find(this.byBarcodeOf({barcode}))
+      if (!found) decodedTags.push({barcode, quantity})
+      else found.quantity += quantity
+    })
+    return decodedTags
+  }
+
+  public printReceipt(tags: string[]): string {
+    return this.renderReceipt(this.promote(this.expandItemFromBarcode(this.decodeTags(tags))))
+  }
 }
